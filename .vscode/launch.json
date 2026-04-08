@@ -1,0 +1,18 @@
+{
+  "version": "0.2.0",
+  "configurations": [    
+    {
+      "name": "Backend: Attach",
+      "type": "node",
+      "request": "attach",
+      "port": 9229,
+      "restart": true,
+      "sourceMaps": true,
+      "outFiles": ["${workspaceFolder}/backend/dist/**/*.js"],
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/backend/**",
+        "!**/node_modules/**"
+      ]
+    }
+  ]
+}
