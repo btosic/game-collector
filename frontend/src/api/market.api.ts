@@ -5,6 +5,7 @@ export interface Product {
   title: string;
   description: string;
   handle: string;
+  url: string;
   image: string | null;
   imageAlt: string | null;
   price: string;

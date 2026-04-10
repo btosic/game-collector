@@ -20,6 +20,9 @@ const PRODUCTS_QUERY = `
           priceRange {
             minVariantPrice { amount currencyCode }
           }
+          variants(first: 1) {
+            edges { node { id } }
+          }
         }
       }
     }
@@ -31,6 +34,7 @@ export interface ShopifyProduct {
   title: string;
   description: string;
   handle: string;
+  url: string;
   image: string | null;
   imageAlt: string | null;
   price: string;
@@ -44,6 +48,7 @@ interface GqlProductNode {
   handle: string;
   images: { edges: Array<{ node: { url: string; altText: string } }> };
   priceRange: { minVariantPrice: { amount: string; currencyCode: string } };
+  variants: { edges: Array<{ node: { id: string } }> };
 }
 
 interface GqlResponse {
@@ -91,16 +96,28 @@ export class MarketService {
 
       const data = (await res.json()) as GqlResponse;
 
-      const products = data.data.products.edges.map(({ node }) => ({
-        id: node.id,
-        title: node.title,
-        description: node.description,
-        handle: node.handle,
-        image: node.images.edges[0]?.node.url ?? null,
-        imageAlt: node.images.edges[0]?.node.altText ?? null,
-        price: node.priceRange.minVariantPrice.amount,
-        currency: node.priceRange.minVariantPrice.currencyCode,
-      }));
+      const storeOrigin = new URL(apiUrl).origin;
+
+      // Shopify variant GIDs look like "gid://shopify/ProductVariant/12345678"
+      // The cart permalink /cart/{numericId}:1 goes straight to checkout.
+      const numericVariantId = (gid: string) => gid.split('/').pop() ?? '';
+
+      const products = data.data.products.edges.map(({ node }) => {
+        const variantGid = node.variants.edges[0]?.node.id ?? '';
+        return {
+          id: node.id,
+          title: node.title,
+          description: node.description,
+          handle: node.handle,
+          url: variantGid
+            ? `${storeOrigin}/cart/${numericVariantId(variantGid)}:1`
+            : `${storeOrigin}/products/${node.handle}`,
+          image: node.images.edges[0]?.node.url ?? null,
+          imageAlt: node.images.edges[0]?.node.altText ?? null,
+          price: node.priceRange.minVariantPrice.amount,
+          currency: node.priceRange.minVariantPrice.currencyCode,
+        };
+      });
 
       await this.redis.set(key, JSON.stringify(products), 'EX', CACHE_TTL);
       return products;
@@ -113,13 +130,15 @@ export class MarketService {
   }
 }
 
+const MOCK_STORE = 'https://your-store.myshopify.com';
+
 const MOCK_PRODUCTS: ShopifyProduct[] = [
-  { id: 'mock-1', title: 'Custom Dice Set — Obsidian', description: 'Premium hand-crafted obsidian resin dice.', handle: 'obsidian-dice', image: null, imageAlt: null, price: '24.99', currency: 'USD' },
-  { id: 'mock-2', title: 'Neoprene Playmat — Forest', description: 'Large non-slip neoprene playmat with immersive art.', handle: 'forest-playmat', image: null, imageAlt: null, price: '34.99', currency: 'USD' },
-  { id: 'mock-3', title: 'Card Sleeves — Matte 100pk', description: 'Perfect-fit matte sleeves for standard size cards.', handle: 'matte-sleeves', image: null, imageAlt: null, price: '8.99', currency: 'USD' },
-  { id: 'mock-4', title: 'Modular Foam Insert', description: 'Universal foam insert system for game storage.', handle: 'foam-insert', image: null, imageAlt: null, price: '19.99', currency: 'USD' },
-  { id: 'mock-5', title: 'Acrylic Dice Tower', description: 'Felt-lined acrylic tower for quiet, fair rolls.', handle: 'acrylic-tower', image: null, imageAlt: null, price: '29.99', currency: 'USD' },
-  { id: 'mock-6', title: 'Magnetic Score Tracker', description: 'Compact tracker that fits in any game box.', handle: 'score-tracker', image: null, imageAlt: null, price: '14.99', currency: 'USD' },
-  { id: 'mock-7', title: 'Deluxe Token Set', description: '150 mixed wooden tokens in 6 colours.', handle: 'token-set', image: null, imageAlt: null, price: '12.99', currency: 'USD' },
-  { id: 'mock-8', title: 'First Player Marker', description: 'Weighted resin first-player crown marker.', handle: 'first-player', image: null, imageAlt: null, price: '9.99', currency: 'USD' },
+  { id: 'mock-1', title: 'Custom Dice Set — Obsidian', description: 'Premium hand-crafted obsidian resin dice.', handle: 'obsidian-dice', url: `${MOCK_STORE}/cart/10000000001:1`, image: null, imageAlt: null, price: '24.99', currency: 'USD' },
+  { id: 'mock-2', title: 'Neoprene Playmat — Forest', description: 'Large non-slip neoprene playmat with immersive art.', handle: 'forest-playmat', url: `${MOCK_STORE}/cart/10000000002:1`, image: null, imageAlt: null, price: '34.99', currency: 'USD' },
+  { id: 'mock-3', title: 'Card Sleeves — Matte 100pk', description: 'Perfect-fit matte sleeves for standard size cards.', handle: 'matte-sleeves', url: `${MOCK_STORE}/cart/10000000003:1`, image: null, imageAlt: null, price: '8.99', currency: 'USD' },
+  { id: 'mock-4', title: 'Modular Foam Insert', description: 'Universal foam insert system for game storage.', handle: 'foam-insert', url: `${MOCK_STORE}/cart/10000000004:1`, image: null, imageAlt: null, price: '19.99', currency: 'USD' },
+  { id: 'mock-5', title: 'Acrylic Dice Tower', description: 'Felt-lined acrylic tower for quiet, fair rolls.', handle: 'acrylic-tower', url: `${MOCK_STORE}/cart/10000000005:1`, image: null, imageAlt: null, price: '29.99', currency: 'USD' },
+  { id: 'mock-6', title: 'Magnetic Score Tracker', description: 'Compact tracker that fits in any game box.', handle: 'score-tracker', url: `${MOCK_STORE}/cart/10000000006:1`, image: null, imageAlt: null, price: '14.99', currency: 'USD' },
+  { id: 'mock-7', title: 'Deluxe Token Set', description: '150 mixed wooden tokens in 6 colours.', handle: 'token-set', url: `${MOCK_STORE}/cart/10000000007:1`, image: null, imageAlt: null, price: '12.99', currency: 'USD' },
+  { id: 'mock-8', title: 'First Player Marker', description: 'Weighted resin first-player crown marker.', handle: 'first-player', url: `${MOCK_STORE}/cart/10000000008:1`, image: null, imageAlt: null, price: '9.99', currency: 'USD' },
 ];

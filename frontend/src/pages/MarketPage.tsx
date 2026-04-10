@@ -66,8 +66,13 @@ function ProductCard({ product }: { product: Product }) {
             {product.currency === 'USD' ? '$' : product.currency}
             {product.price}
           </span>
-          <button className="text-xs px-3 py-1.5 rounded-lg bg-indigo-600/30 hover:bg-indigo-600 text-indigo-300 hover:text-white transition-colors">
-            Add to cart
+          <button
+            className="text-xs px-3 py-1.5 rounded-lg bg-indigo-600/30 hover:bg-indigo-600 text-indigo-300 hover:text-white transition-colors"
+            onClick={() =>
+              window.open(product.url, '_blank', 'noopener,noreferrer')
+            }
+          >
+            Buy
           </button>
         </div>
       </div>
