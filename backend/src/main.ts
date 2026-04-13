@@ -51,6 +51,7 @@ async function bootstrap() {
 
   app.get(Logger).log(`🚀 App running on http://localhost:${port}/api`);
   app.get(Logger).log(`📖 Swagger at   http://localhost:${port}/api/docs`);
+  app.get(Logger).log(`Testing... 🧪`);
 }
 
 bootstrap();
