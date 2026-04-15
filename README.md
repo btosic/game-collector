@@ -4,11 +4,11 @@
 
 A board game collection manager where users can track games they own, want, or are willing to trade. It integrates with the [BoardGameGeek](https://boardgamegeek.com/) API for game metadata and includes a small accessories marketplace backed by the Shopify Storefront API.
 
----
+## Live demo is deployed to Render and can be accessed [here](https://game-collector-client.onrender.com/)
 
 ## Features
 
-- **Collection management** — add games to your library with statuses: *In Collection*, *Wishlist*, or *For Trade*
+- **Collection management** — add games to your library with statuses: _In Collection_, _Wishlist_, or _For Trade_
 - **Trades** — browse others' listings, send trade requests, accept or decline; real-time activity feed via WebSockets
 - **Market** — browse premium accessories sourced from Shopify (falls back to mock data if not configured)
 - **Auth** — JWT access + refresh tokens; refresh tokens stored in Redis for revocation support
@@ -18,15 +18,15 @@ A board game collection manager where users can track games they own, want, or a
 
 ## Tech Stack
 
-| Layer | Technology |
-|-------|-----------|
-| Frontend | React 18, TypeScript, Vite, React Router 7, Tailwind CSS, Socket.IO client |
-| Backend | NestJS 10, TypeScript, TypeORM, Socket.IO (WebSockets) |
-| Database | PostgreSQL 16 |
-| Cache / sessions | Redis 7 |
-| Auth | JWT (access + refresh), Passport, bcrypt |
-| External APIs | BoardGameGeek XML API, Shopify Storefront GraphQL API |
-| Dev tooling | Docker Compose, Prettier, ESLint, Swagger (`/api/docs`) |
+| Layer            | Technology                                                                 |
+| ---------------- | -------------------------------------------------------------------------- |
+| Frontend         | React 18, TypeScript, Vite, React Router 7, Tailwind CSS, Socket.IO client |
+| Backend          | NestJS 10, TypeScript, TypeORM, Socket.IO (WebSockets)                     |
+| Database         | PostgreSQL 16                                                              |
+| Cache / sessions | Redis 7                                                                    |
+| Auth             | JWT (access + refresh), Passport, bcrypt                                   |
+| External APIs    | BoardGameGeek XML API, Shopify Storefront GraphQL API                      |
+| Dev tooling      | Docker Compose, Prettier, ESLint, Swagger (`/api/docs`)                    |
 
 ---
 
