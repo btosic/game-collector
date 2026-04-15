@@ -4,7 +4,7 @@
 
 A board game collection manager where users can track games they own, want, or are willing to trade. It integrates with the [BoardGameGeek](https://boardgamegeek.com/) API for game metadata and includes a small accessories marketplace backed by the Shopify Storefront API.
 
-## Live demo is deployed to Render and can be accessed [here](https://game-collector-client.onrender.com/)
+Live demo is deployed to Render and can be accessed [here](https://game-collector-client.onrender.com/)
 
 ## Features
 
